@@ -76,10 +76,9 @@ def measurements():
     begindate = dt.datetime(2016, 8, 23)
 
     # Perform a query to retrieve the data and precipitation scores
-    results = session.query(Measurement.date, func.Avg(Measurement.prcp)).\
-    filter(Measurement.date >= begindate).\
-    group_by(Measurement.date).\
-    order_by(Measurement.date).all()
+    results = session.query(Measurement.date, Measurement.prcp).\
+        filter(Measurement.date >= begindate).\
+        order_by(Measurement.date).all()
 
     session.close()
 
@@ -87,8 +86,8 @@ def measurements():
     all_measurements = []
     for date, prcp in results:
         measurements_dict = {}
-        measurements_dict["date"] = date
-        measurements_dict["prcp"] = prcp
+        measurements_dict[date] = prcp
+        #measurements_dict["prcp"] = prcp
         all_measurements.append(measurements_dict)
 
     return jsonify(all_measurements)
@@ -162,7 +161,7 @@ def start_end():
     s_date = dt.datetime.strptime(start_date, "%Y-%m-%d").date()
     e_date = dt.datetime.strptime(end_date, "%Y-%m-%d").date()
     results = session.query(func.Min(Measurement.tobs), func.Max(Measurement.tobs), func.Avg(Measurement.tobs)).\
-                         filter(Measurement.date<e_date).\
+                         filter(Measurement.date<=e_date).\
                         filter(Measurement.date>=s_date).all()
     
     session.close()
